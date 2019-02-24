@@ -1,0 +1,2 @@
+- Because this is a similarity graph, I used modularity statistic to decide on colors. Colors has the biggest impact on viewer's eyes.
+- I also used different size for nodes to show their PageRank statistic values. Different sizes, also are easy to detect quickly.

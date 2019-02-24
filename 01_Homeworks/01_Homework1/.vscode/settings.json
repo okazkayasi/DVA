@@ -1,0 +1,11 @@
+{
+    "python.pythonPath": "/home/okazkayasi/anaconda2/envs/hw3/bin/python",
+
+// Controls the font family.
+"editor.fontFamily": "Consolas, \"Courier New\", monospace";,
+
+// Controls the font size.
+"editor.fontSize": 13,
+
+"python.linting.pylintArgs": ["--errors-only"]
+}

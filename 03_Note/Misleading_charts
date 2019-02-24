@@ -1,0 +1,79 @@
+1 - Misleading Bar Charts
+
+    - Bar chart vertical axis starts with 0
+    - Disorienting color bars is wrong.
+      - Color bars of a group should be colored using gradation
+    - Avoid Tilted or Rotated labels.
+      - Try horizontal layout. Don't settle for the default.
+      - Label can be under bars and numbers on the left when horizontal
+    - Line charts 
+      - Axis labels are far by 2 or 5 or 10.
+      - Special care how we design the vertical range.
+      - y-axis doesn't need to start with 0.
+      - Aim for two-third of the range is filled with data.
+    - Multiple Patterned Lines in one chart
+      - Common is assigning different marks (dotted - circle etc.)
+      - People prefer to see more continuity.
+      - You can use color instead or line-thickness.
+      - Thickness and color (brigtness works too) can show the continuity.
+      - Sometimes you have a lot of lines use "SMALL MULTIPLE" by E.Tufte.
+    - Tables:
+      - Do not use everything bold or italic.
+      - If everything is special, nothing is special.
+    - Chart junk
+      - Low "data to ink ratio" by Edward Tufte
+      - Put a grid line one out of 4 lines to make it easier to read.
+    - Pie Charts
+      - Use them rarely. If given pie chart what to do. 
+      - Tilted pie chart (2.5 D) SUCKS!
+      - When tilted it gives the false illusion.
+    - Log scale instead of linear scale:
+      - Include numbers from different orders of magnitude.
+      - Compress wide range of data.
+      - 1 to 1 Billion example. 
+      - log-scale works good for time
+      - Compress 1-2-3 months then 1 year 2 year 4 year 30 years.
+
+2 - Applying What You've Learned
+
+    - No crossing labels. Instead use horizontal.
+    - Do not use white over black
+    - Do not use over emphasise or over bold the text.
+    - Table stuff as done is HW2 Q1.
+
+3 - Practitioners' Guide
+ 
+    - Colors: 
+      - Start with b&w, then add colors carefully.
+      - This forces you to focus on content and layout
+    - Fonts :
+      - sans-serif is generally easier to read.
+    - Animation> 
+      - Start with no animation, then add meaningful ones.
+    - Use pictures and videos
+       - Pictuires are more succint & memorable.
+       - When you have good stuff, put them when people are 
+         still awake.
+    - For every project "CUT TO THE CHASE" image.
+    - For researchers: 
+      - People tend to skim and look at interesting things.
+      - Have a crown jewel image.
+      - Use your most impressive figures, even similar to 
+        another
+    - Figures should be self-contained. 
+    - People shouldn't go back and forth between text & 
+      figures.
+    - Figure should succintly desrive your main (take-away) 
+      message. It can be given at Figure explanation line.
+    - For printed materials, print them and check.
+    - For presentation, about 7 lines of text on a slide.
+    - 
+
+
+
+
+
+
+
+
+

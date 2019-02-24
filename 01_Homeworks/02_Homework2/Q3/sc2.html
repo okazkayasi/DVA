@@ -1,0 +1,55 @@
+<html lang="eng">
+<head>
+    <meta charset="utf-8">
+    <title>D3 Demo: Making a scatterplot with SVG</title>
+    <script src="../lib/d3.v5.min.js"></script>
+    <style type="text/css">
+        /* No style rules here yet */
+    </style>
+</head>
+<body data-gr-c-s-loaded="true">
+<script type="text/javascript">
+
+    var ratData = [];
+
+    d3.csv("movies.csv", function(d) {
+        return {
+            city : d["WinsNoms"],
+            rats : +d["Rating"],
+            coffee : +d["IsGoodRating"]
+        };
+    }, function(error, rows) {
+        ratData = rows;
+        console.log(ratData);
+        createVisualization();
+    });
+
+    function createVisualization(){
+        //Width and height
+        var w = 180;
+        var h = 180;
+
+        //Create SVG element
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h)
+            .attr("style", "outline: thin solid black;");
+
+        svg.selectAll("circle")
+            .data( ratData)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) {
+                return d.rats;
+            })
+            .attr("cy", function(d) {
+                return d.coffee;
+            })
+            .attr("r", 5);
+    }
+
+</script>
+
+</body>
+</html>

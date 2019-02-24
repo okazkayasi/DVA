@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    .counties {
+        fill: none;
+    }
+
+    .states {
+        fill: none;
+        stroke: #fff;
+        stroke-linejoin: round;
+    }
+
+    .legend{
+        position: relative;
+    }
+    .svg{
+        position: relative;
+    }
+    .svg2{
+        font-size: 14px;
+        font-family: sans-serif;
+    }
+    h1{
+        text-align: center;
+    }
+    div.tooltip {
+        color: white;
+        position: absolute;
+        text-align: left;
+        width: 140px;
+        height: 60px;
+        border-radius: 8px;
+        padding: 5px 10px;
+        font: 10px sans-serif;
+        background: #000;
+        border: 1px;
+        pointer-events: none;
+    }
+</style>
+<body>
+<div><h1>Choropleth Map of Country Data</h1></div>
+<div class="legend">
+    <svg width="960" height="600" class="svg"></svg>
+</div>
+</body>
+<script src="../lib/d3.v5.min.js"></script>
+<script src="../lib/d3-tip.min.js"></script>
+<script src="../lib/topojson.v2.min.js"></script>
+<script>
+
+    var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+
+    var poverty = d3.map();
+
+    var path = d3.geoPath();
+
+    var x = d3.scaleLinear()
+        .domain([0, 20])
+        .rangeRound([600, 860]);
+
+    var color = d3.scaleThreshold()
+        .domain(d3.range(2, 20, 2))
+        .range(["#cb9c9c", "#bf8484", "#b26b6b", "#a55252", "#983a3a", "#8b2121", "#7f0909", "#720808", "#650707", "#580606", "#4c0505", "#3f0404", "#320303"]);
+
+    var svgLegend = d3.select(".legend").append("svg")
+        .attr("class", "svg2")
+        .attr("width", 100)
+        .attr("height", 400)
+
+    // D3 vertical legend
+    var legend = svgLegend.selectAll(".legend")
+        .data(color.domain())
+        .enter().append('g')
+        .attr('class', "legend")
+        .attr("transform", function (d, i) {
+            return "translate(0, " + i * 20 + ")";
+        });
+
+    svgLegend.append('text')
+        .attr("x", 15)
+        .attr("y", 15)
+        .text("Poverty Rate")
+        .style("font-weight", "bold");
+
+
+    legend.append("rect")
+        .attr("x", 40)
+        .attr("y", 20)
+        .attr("width", 10)
+        .attr("height", 20)
+        .attr("fill", function (d,i) {
+            return color(i*2);
+        });
+
+    legend.append("text")
+        .attr("x", 55)
+        .attr("y", 40)
+        .text(function (d, i) {
+            if (d === 2){
+                return "<=2";
+            }
+            else if (d === 18) {
+                return ">= 18";
+            }
+            return d;
+        })
+        .style("text-anchor", "start")
+        .style("font-size", 15)
+
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    var promises = [
+        d3.json("us.json"),
+        d3.csv("county_poverty.csv", function(d) {
+            poverty.set(d.CensusId+"0", [+d.Poverty, d.County, d.State]);
+            // console.log(poverty.get(d.CensusId));
+        }),
+        d3.csv("county_detail.csv", function (d) {
+            poverty.set(d.CensusId+"1", [+d.TotalPop, +d.IncomePerCap]);
+        })
+    ];
+
+    Promise.all(promises).then(ready);
+
+    function ready(data) {
+
+        svg.append("g")
+            .attr("class", "counties")
+            .selectAll("path")
+            .data(topojson.feature(data[0], data[0].objects.counties).features)
+            .enter().append("path")
+            .attr("fill", function(d) { return color(d.Poverty = poverty.get(d.id+"0")[0]); })
+            .attr("d", path)
+            .on("mouseover", function(d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .8);
+                tooltip.html("<strong>State: </strong>" + poverty.get(d.id+"0")[2] + "<br/>" +
+                    "<strong>County: </strong>" + poverty.get(d.id+"0")[1] + "<br/>" +
+                    "<strong>Poverty Rate: </strong>" + poverty.get(d.id+"0")[0] + "% <br/>" +
+                    "<strong>Total Population: </strong>" + Number(poverty.get(d.id+"1")[0]).toLocaleString() + "<br/>" +
+                    "<strong>Income Per Capita: </strong>" + Number(poverty.get(d.id+"1")[1]).toLocaleString() + "<br/>"
+                )
+                    .style("left", (d3.event.pageX ) + "px")
+                    .style("top", (d3.event.pageY - 75) + "px");
+            })
+            .on("mouseout", function(d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+
+        svg.append("path")
+            .datum(topojson.mesh(data[0], data[0].objects.states, function(a, b) { return a !== b; }))
+            .attr("class", "states")
+            .attr("d", path);
+    }
+
+</script>

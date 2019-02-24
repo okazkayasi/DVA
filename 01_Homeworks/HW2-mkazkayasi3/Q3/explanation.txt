@@ -1,0 +1,4 @@
+Q3.a.2. Rating vs Wins&Noms seems to be better at seperating linearly. Bad ratings gather together at the left-bottom side, whereas good ratings are collected at top parts.
+
+Q3.c. Log scale can be used when there are some super large numebers in dataset comparing others. The chart won't lose the details of the majority.
+      Square root scale can be used at less extreme cases. It will bring numbers closer, but not as much as log scale do.

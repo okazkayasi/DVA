@@ -1,0 +1,6 @@
+i.a. 47
+i.b. 5
+ii.  562
+iii. grel:if(isNull(value), "Unbranded", value)
+iv.  grel:if(value > 100, 1, 0)
+v.   grel:if( or(contains(value, "sale"), contains(value, "discount"), contains(value, "offer")), 1, 0)

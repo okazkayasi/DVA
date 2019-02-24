@@ -1,0 +1,602 @@
+<html lang="eng">
+<head>
+    <meta charset="utf-8">
+    <title>D3 Demo: Making a scatterplot with SVG</title>
+    <script src="../lib/d3.v5.min.js"></script>
+    <style type="text/css">
+        .axis path{
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+        .legend {
+            padding: 5px;
+            font: 15px sans-serif;
+            background: yellow;
+            box-shadow: 2px 2px 1px #888;
+        }
+        .symbol {
+            /*fill: steelblue;*/
+            stroke: #000;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    var margin = {top: 30, right: 150, bottom: 40, left:100};
+    var width = 1020 - margin.left - margin.right;
+    var height = 500 - margin.top - margin.bottom;
+
+    var svg = d3.select('body')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+
+    var svg2 = d3.select('body')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var svg3 = d3.select('body')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var svg4 = d3.select('body')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var svg5 = d3.select('body')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+
+    var xScale = d3.scaleLinear()
+        .range([0, width]);
+    var yScale = d3.scaleLinear()
+        .range([height, 0]);
+    var rScale = d3.scaleLinear()
+        .range([50,500]);
+    var ySquareScale = d3.scaleSqrt()
+        .range([height, 0]);
+    var yLogScale = d3.scaleLog()
+        .range([height, 0]);
+
+
+    var xAxis = d3.axisBottom()
+        .scale(xScale);
+    var yAxis = d3.axisLeft()
+        .scale(yScale);
+    var ySqAxis = d3.axisLeft()
+        .scale(ySquareScale)
+        .ticks(7);
+    var yLogAxis = d3.axisLeft()
+        .scale(yLogScale)
+        .ticks(5);
+
+
+
+
+    // first scatterplot
+    d3.csv("movies.csv")
+        .then(function (data) {
+            data.forEach(function (d) {
+                d.WinsNoms = +d.WinsNoms;
+                d.Rating = +d.Rating;
+                d.IsGoodRating = +d.IsGoodRating;
+            });
+
+            xScale.domain(d3.extent(data, function (d) {
+                return d.WinsNoms;
+            })).nice();
+            yScale.domain(d3.extent(data, function (d) {
+                return d.Rating;
+            })).nice();
+
+            svg.append('g')
+                .attr('transform', 'translate(0,' + height + ')')
+                .attr('class', 'x axis')
+                .call(xAxis);
+
+            svg.append('g')
+                .attr('transform', 'translate(0,0)')
+                .attr('class', 'y axis')
+                .call(yAxis);
+
+            svg.selectAll('.symbol')
+                .data(data)
+                .enter()
+                .append("path")
+                .attr("class", "symbol")
+                .attr("fill", function (d) {
+                    if (d.IsGoodRating === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function(d) {
+                    return "translate(" + xScale(d.WinsNoms) + "," + yScale(d.Rating) + ")";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d3.symbols[d.IsGoodRating];
+                }))
+
+            var syms = [d3.symbols[0], d3.symbols[1]];
+
+            var legend = svg.append("g")
+                .attr("class", "legend");
+
+            svg.append("text")
+                .attr("x", width/2)
+                .attr("y", 0-margin.top/2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .style("text-decoration", "underline")
+                .text("Rating vs Wins&Nomitanations");
+
+            svg.append("rect")
+                .attr("x", width)
+                .attr("y", 0)
+                .attr("height", 45)
+                .attr("width",120)
+                .style("fill", "none")
+                .style("stroke", "blue");
+
+            legend.selectAll("path")
+                .data(syms)
+                .enter()
+                .append("path")
+                .attr('class', "symbol")
+                .attr('fill', function (d,i) {
+                    if (i === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function (d,i) {
+                    if (i===0) return "translate("+(width+10)+",32)";
+                    else return "translate("+(width+10)+", 12)";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d;
+                }));
+
+            legend.selectAll("text")
+                .data(syms)
+                .enter()
+                .append("text")
+                .attr("x", width+20)
+                .attr("y", function (d,i) {
+                    if(i === 0){return 17;}
+                    else return 37;
+                })
+                .text(function(d,i) {
+                    if(i === 0) return "Good Rating";
+                    else return "Bad Rating";
+                });
+
+
+        });
+    //second scatterplot
+    d3.csv('movies.csv')
+        .then(function (data) {
+            data.forEach(function (d) {
+                d.Rating = +d.Rating;
+                d.Budget = +d.Budget;
+                d.IsGoodRating = +d.IsGoodRating;
+            });
+            xScale.domain(d3.extent(data, function (d) {
+                return d.Rating;
+            })).nice();
+            yScale.domain(d3.extent(data, function (d) {
+                return d.Budget;
+            })).nice();
+
+            svg2.append('g')
+                .attr('transform', 'translate(0,' + height + ')')
+                .attr('class', 'x axis')
+                .call(xAxis);
+            svg2.append('g')
+                .attr('transform', 'translate(0,0)')
+                .attr('class', 'y axis')
+                .call(yAxis);
+
+
+
+            svg2.selectAll("path")
+                .data(data)
+                .enter()
+                .append('path')
+                .attr("class", "symbol")
+                .attr('fill', function (d) {
+                    if (d.IsGoodRating === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function (d) {
+                    return "translate(" + xScale(d.Rating) + "," +yScale(d.Budget) + ")";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d3.symbols[d.IsGoodRating];
+                }));
+
+            var syms = [d3.symbols[0], d3.symbols[1]];
+
+            var legend = svg2.append("g")
+                .attr("class", "legend")
+                .attr("x", 65)
+                .attr("y", 25)
+                .attr("height", 100)
+                .attr("width", 100);
+
+
+            svg2.append("text")
+                .attr("x", width/2)
+                .attr("y", 0-margin.top/2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .style("text-decoration", "underline")
+                .text("Budget vs Rating");
+
+
+            svg2.append("rect")
+                .attr("x", width)
+                .attr("y", 0)
+                .attr("height", 45)
+                .attr("width",120)
+                .style("fill", "none")
+                .style("stroke", "blue");
+
+            legend.selectAll("path")
+                .data(syms)
+                .enter()
+                .append("path")
+                .attr('class', "symbol")
+                .attr('fill', function (d,i) {
+                    if (i === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function (d,i) {
+                    if (i===0) return "translate("+(width+10)+",32)";
+                    else return "translate("+(width+10)+", 12)";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d;
+                }));
+
+            legend.selectAll("text")
+                .data(syms)
+                .enter()
+                .append("text")
+                .attr("x", width+20)
+                .attr("y", function (d,i) {
+                    if(i === 0){return 17;}
+                    else return 37;
+                })
+                .text(function(d,i) {
+                    if(i === 0) return "Good Rating";
+                    else return "Bad Rating";
+                });
+
+        });
+
+
+    // Third one scaling symbol sizes
+    d3.csv('movies.csv')
+        .then(function (data) {
+            data.forEach(function (d) {
+                d.Rating = +d.Rating;
+                d.Votes = +d.Votes;
+                d.WinsNoms = +d.WinsNoms;
+                d.IsGoodRating = +d.IsGoodRating;
+            });
+            xScale.domain(d3.extent(data, function (d) {
+                return d.Rating;
+            })).nice();
+            yScale.domain(d3.extent(data, function (d) {
+                return d.Votes;
+            })).nice();
+
+            rScale.domain(d3.extent(data, function (d) {
+                return d.WinsNoms
+            })).nice();
+
+            svg3.append('g')
+                .attr('transform', 'translate(0,' + height + ')')
+                .attr('class', 'x axis')
+                .call(xAxis);
+            svg3.append('g')
+                .attr('transform', 'translate(0,0)')
+                .attr('class', 'y axis')
+                .call(yAxis);
+
+            svg3.selectAll("path")
+                .data(data)
+                .enter()
+                .append('path')
+                .attr("class", "symbol")
+                .attr("fill", "none")
+                .style('stroke', function (d) {
+                    if (d.IsGoodRating === 0) {return "#B4464B";}
+                    else{ return "steelblue";}
+                })
+                .attr("stroke-width", "2px")
+                .attr("transform", function (d) {
+                    return "translate(" + xScale(d.Rating) + "," +yScale(d.Votes) + ")";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d3.symbols[d.IsGoodRating];
+                }).size(function (d) {
+                    return rScale(d.WinsNoms);
+                }));
+
+            var syms = [d3.symbols[0], d3.symbols[1]];
+
+            var legend = svg3.append("g")
+                .attr("class", "legend");
+
+
+            svg3.append("text")
+                .attr("x", width/2)
+                .attr("y", 0-margin.top/2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .style("text-decoration", "underline")
+                .text("Votes vs Rating");
+
+
+            svg3.append("rect")
+                .attr("x", width)
+                .attr("y", 0)
+                .attr("height", 45)
+                .attr("width",120)
+                .style("fill", "none")
+                .style("stroke", "blue");
+
+            legend.selectAll("path")
+                .data(syms)
+                .enter()
+                .append("path")
+                .attr('class', "symbol")
+                .attr("fill", "none")
+                .style('stroke', function (d,i) {
+                    if (i === 0) {return "#B4464B";;}
+                    else{ return "steelblue";}
+                })
+                .attr("stroke-width", "2px")
+                .attr("transform", function (d,i) {
+                    if (i===0) return "translate("+(width+10)+",32)";
+                    else return "translate("+(width+10)+", 12)";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d;
+                }));
+
+            legend.selectAll("text")
+                .data(syms)
+                .enter()
+                .append("text")
+                .attr("x", width+20)
+                .attr("y", function (d,i) {
+                    if(i === 0){return 17;}
+                    else return 37;
+                })
+                .text(function(d,i) {
+                    if(i === 0) return "Good Rating";
+                    else return "Bad Rating";
+                });
+
+        });
+
+
+    // Fourth one
+    // uses the sq root scale for its y-axis
+    //Title: Wins+Nominations (sq-root-scaled) vs. Rating
+    // X axis (horizontal) label: Rating
+    // Y axis (vertical) label Wins+Noms
+    d3.csv('movies.csv')
+        .then(function (data) {
+            data.forEach(function (d) {
+                d.Rating = +d.Rating;
+                d.WinsNoms = +d.WinsNoms;
+                d.IsGoodRating = +d.IsGoodRating;
+            });
+            xScale.domain(d3.extent(data, function (d) {
+                return d.Rating;
+            })).nice();
+            ySquareScale.domain(d3.extent(data, function (d) {
+                return d.WinsNoms;
+            })).nice();
+
+
+            svg4.append('g')
+                .attr('transform', 'translate(0,' + height + ')')
+                .attr('class', 'x axis')
+                .call(xAxis);
+            svg4.append('g')
+                .attr('transform', 'translate(0,0)')
+                .attr('class', 'y axis')
+                .attr('tick', 5)
+                .call(ySqAxis);
+
+
+
+            svg4.selectAll("path")
+                .data(data)
+                .enter()
+                .append('path')
+                .attr("class", "symbol")
+                .attr('fill', function (d) {
+                    if (d.IsGoodRating === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function (d) {
+                    return "translate(" + xScale(d.Rating) + "," +ySquareScale(d.WinsNoms) + ")";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d3.symbols[d.IsGoodRating];
+                }));
+
+            var syms = [d3.symbols[0], d3.symbols[1]];
+
+            var legend = svg4.append("g")
+                .attr("class", "legend")
+
+            svg4.append("text")
+                .attr("x", width/2)
+                .attr("y", 0-margin.top/2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .style("text-decoration", "underline")
+                .text("Wins+Nominations (square-root-scaled) vs. Rating");
+
+            svg4.append("rect")
+                .attr("x", width)
+                .attr("y", 0)
+                .attr("height", 45)
+                .attr("width",120)
+                .style("fill", "none")
+                .style("stroke", "blue");
+
+            legend.selectAll("path")
+                .data(syms)
+                .enter()
+                .append("path")
+                .attr('class', "symbol")
+                .attr('fill', function (d,i) {
+                    if (i === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function (d,i) {
+                    if (i===0) return "translate("+(width+10)+",32)";
+                    else return "translate("+(width+10)+", 12)";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d;
+                }));
+
+            legend.selectAll("text")
+                .data(syms)
+                .enter()
+                .append("text")
+                .attr("x", width+20)
+                .attr("y", function (d,i) {
+                    if(i === 0){return 17;}
+                    else return 37;
+                })
+                .text(function(d,i) {
+                    if(i === 0) return "Good Rating";
+                    else return "Bad Rating";
+                });
+
+        });
+
+
+    d3.csv('movies.csv')
+        .then(function (data) {
+            data.forEach(function (d) {
+                d.Rating = +d.Rating;
+                d.WinsNoms = +d.WinsNoms;
+                d.IsGoodRating = +d.IsGoodRating;
+            });
+            xScale.domain(d3.extent(data, function (d) {
+                return d.Rating;
+            })).nice();
+            yLogScale.clamp(true).domain([1, d3.max(data, function (d) {
+                return d.WinsNoms;
+            })]);
+
+
+            svg5.append('g')
+                .attr('transform', 'translate(0,' + height + ')')
+                .attr('class', 'x axis')
+                .call(xAxis);
+            svg5.append('g')
+                .attr('transform', 'translate(0,0)')
+                .attr('class', 'y axis')
+                .attr('tick', 5)
+                .call(yLogAxis);
+
+
+
+            svg5.selectAll("path")
+                .data(data)
+                .enter()
+                .append('path')
+                .attr("class", "symbol")
+                .attr('fill', function (d) {
+                    if (d.IsGoodRating === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function (d) {
+                    return "translate(" + xScale(d.Rating) + "," +yLogScale(d.WinsNoms) + ")";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d3.symbols[d.IsGoodRating];
+                }));
+
+            var syms = [d3.symbols[0], d3.symbols[1]];
+
+            var legend = svg5.append("g")
+                .attr("class", "legend")
+
+            svg5.append("text")
+                .attr("x", width/2)
+                .attr("y", 0-margin.top/2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .style("text-decoration", "underline")
+                .text("Wins+Nominations (log-scaled) vs. Rating");
+
+            svg5.append("rect")
+                .attr("x", width)
+                .attr("y", 0)
+                .attr("height", 45)
+                .attr("width",120)
+                .style("fill", "none")
+                .style("stroke", "blue");
+
+            legend.selectAll("path")
+                .data(syms)
+                .enter()
+                .append("path")
+                .attr('class', "symbol")
+                .attr('fill', function (d,i) {
+                    if (i === 0) {return "red";}
+                    else{ return "blue";}
+                })
+                .attr("transform", function (d,i) {
+                    if (i===0) return "translate("+(width+10)+",32)";
+                    else return "translate("+(width+10)+", 12)";
+                })
+                .attr("d", d3.symbol().type(function (d) {
+                    return d;
+                }));
+
+            legend.selectAll("text")
+                .data(syms)
+                .enter()
+                .append("text")
+                .attr("x", width+20)
+                .attr("y", function (d,i) {
+                    if(i === 0){return 17;}
+                    else return 37;
+                })
+                .text(function(d,i) {
+                    if(i === 0) return "Good Rating";
+                    else return "Bad Rating";
+                });
+
+        });
+
+</script>
+</body>
+</html>

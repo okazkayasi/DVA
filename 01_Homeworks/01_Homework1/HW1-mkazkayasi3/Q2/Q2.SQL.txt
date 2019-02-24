@@ -1,0 +1,243 @@
+-- Setup. DO NOT REMOVE.
+.headers on
+.separator ','
+
+DROP TABLE IF EXISTS movies;
+DROP TABLE IF EXISTS movie_cast;
+DROP VIEW IF EXISTS good_collaboration;
+DROP TABLE IF EXISTS movie_overview;
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (a.i) Create tables
+
+-- [insert your SQL statement(s) BELOW this line]
+CREATE TABLE movies(
+    ID      INT PRIMARY KEY  NOT NULL,
+    NAME               TEXT  NOT NULL,
+    SCORE               INT  NOT NULL
+);
+
+CREATE TABLE movie_cast(
+    MOVIE_ID      INT   NOT NULL,
+    CAST_ID       INT   NOT NULL,
+    CAST_NAME    TEXT   NOT NULL
+);
+
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.tables
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (a.ii) Import data
+
+-- [insert your SQLite command(s) BELOW this line]
+
+
+-- .mode csv movies
+.import ./movie-name-score.txt movies
+-- .mode csv movie_cast
+.import ./movie-cast.txt movie_cast
+
+
+-- [insert your SQLite command(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.headers off
+SELECT COUNT(*) FROM movies;
+SELECT COUNT(*) FROM movie_cast;
+.headers on
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (b) Create indexes
+
+-- [insert your SQL statement(s) BELOW this line]
+
+
+CREATE INDEX MOVIE_INDEX ON MOVIES (ID);
+CREATE INDEX CAST_INDEX ON MOVIE_CAST (CAST_ID);
+CREATE INDEX SCORES_INDEX ON MOVIES (SCORE);
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.indexes
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (c) Calculate a proportion
+
+-- [insert your SQL statement(s) BELOW this line]
+
+SELECT CAST(COUNT(*) AS FLOAT) * 100 / (SELECT COUNT(*) FROM MOVIES) as PROP FROM MOVIES WHERE SCORE > 50; 
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (d) Find the highest scoring movies
+
+-- [insert your SQL statement(s) BELOW this line]
+
+SELECT * FROM MOVIES 
+    ORDER BY SCORE DESC, NAME
+    LIMIT 7;
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (e) Find the most prolific actors
+
+-- [insert your SQL statement(s) BELOW this line]
+
+SELECT CAST_ID, CAST_NAME, COUNT(CAST_ID) AS MOVIE_COUNT
+FROM MOVIE_CAST
+GROUP BY CAST_ID
+ORDER BY MOVIE_COUNT DESC
+LIMIT 10;
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (f) Get high scoring actors
+
+-- [insert your SQL statement(s) BELOW this line]
+-- 16997 779672521 371354008 770693439
+
+----- PROBLEM ------------
+SELECT CAST_ID, CAST_NAME, AVG(SCORE) AS AVERAGE_SCORE 
+FROM MOVIE_CAST
+LEFT JOIN MOVIES ON MOVIE_CAST.MOVIE_ID = MOVIES.ID
+WHERE SCORE > 50
+GROUP BY CAST_ID
+HAVING COUNT(CAST_ID) > 2
+ORDER BY AVG(SCORE) DESC
+LIMIT 10;
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (g) Creating views
+
+-- [insert your SQL statement(s) BELOW this line]
+
+CREATE VIEW GOOD_COLLABORATION AS 
+SELECT C.CAST_ID AS CAST_MEMBER_ID1, C1.CAST_ID AS CAST_MEMBER_ID2, 
+       COUNT(M.ID) AS MOVIE_COUNT, AVG(M.SCORE) AS AVERAGE_MOVIE_SCORE
+FROM MOVIE_CAST C
+LEFT JOIN MOVIE_CAST C1
+ON C.MOVIE_ID = C1.MOVIE_ID
+LEFT JOIN MOVIES M 
+ON C.MOVIE_ID = M.ID
+WHERE C.CAST_ID != C1.CAST_ID AND C.CAST_ID < C1.CAST_ID
+GROUP BY C.CAST_ID, C1.CAST_ID
+HAVING COUNT(M.ID) >= 3 AND AVG(M.SCORE) >= 40;
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.headers off
+PRAGMA table_info(good_collaboration);
+SELECT AVG(average_movie_score) FROM good_collaboration;
+.headers on
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (h) Find the best collaborators
+
+-- [insert your SQL statement(s) BELOW this line]
+SELECT C.CAST_ID AS CAST_ID, C.CAST_NAME AS CAST_NAME, AVG(M.SCORE) AS COLLABORATION_SCORE
+FROM MOVIE_CAST C
+LEFT JOIN MOVIE_CAST C1
+ON C.MOVIE_ID = C1.MOVIE_ID
+LEFT JOIN MOVIES M 
+ON C.MOVIE_ID = M.ID
+WHERE C.CAST_ID != C1.CAST_ID
+GROUP BY C.CAST_ID, C1.CAST_ID
+HAVING COUNT(M.ID) >= 3 AND AVG(M.SCORE) >= 40
+ORDER BY AVG(M.SCORE) DESC, CAST_NAME;
+
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (i) Create FTS table and import data
+
+-- [insert your SQL statement(s) BELOW this line]
+
+CREATE VIRTUAL TABLE MOVIE_OVERVIEW USING FTS3(
+    ID INT,
+    NAME TEXT,
+    YEAR INT,
+    OVERVIEW TEXT,
+    POPULARITY DEC
+);
+
+--.mode csv MOVIE_OVERVIEW
+.import ./movie-overview.txt MOVIE_OVERVIEW
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (i.1) Count movies with "fight"
+
+-- [insert your SQL statement(s) BELOW this line]
+
+SELECT COUNT(*) AS COUNT_OVERVIEW FROM MOVIE_OVERVIEW WHERE OVERVIEW MATCH 'FIGHT';
+
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --
+
+-- (i.2) List movies with "love" and "story" nearby
+
+-- [insert your SQL statement(s) BELOW this line]
+
+
+SELECT ID FROM MOVIE_OVERVIEW WHERE OVERVIEW MATCH 'LOVE NEAR/5 STORY';
+
+-- [insert your SQL statement(s) ABOVE this line]
+
+-- [the following statement(s) are for autograding. DO NOT REMOVE.]
+.print '~~~~~'
+
+-- ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** --

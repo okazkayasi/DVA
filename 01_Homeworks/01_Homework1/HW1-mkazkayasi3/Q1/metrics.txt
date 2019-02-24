@@ -1,0 +1,2 @@
+1- I used modularity metric for the colors because it represents similarity. I think modularity chooses the groups of movies that are similar to each other.
+2- I used PageRank metric for sizes of nodes. It measures the importance of each node in the network. This means if a node has higher PageRank value, it is easier to reach it from other nodes.
